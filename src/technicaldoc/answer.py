@@ -14,8 +14,10 @@ def words(text):
 
 
 def answer(question, source=None):
-    if not isinstance(question, str) or not question.strip():
-        raise InputError("question is empty")
+    if not isinstance(question, str) or not question.strip() or len(question) > 2000:
+        raise InputError("question must contain 1 to 2000 characters")
+    if source is not None and (not isinstance(source, str) or len(source) > 200):
+        raise InputError("source must be a filename of at most 200 characters")
     corpus = PASSAGES
     if source is not None:
         corpus = [item for item in corpus if item[0] == source]
@@ -25,7 +27,7 @@ def answer(question, source=None):
     ranked = []
     for name, text in corpus:
         overlap = query & words(text)
-        ranked.append({"source": name, "text": text, "overlap": len(overlap)})
+        ranked.append({"source": name, "text": text, "overlap": len(overlap), "matched_terms": sorted(overlap), "query_coverage": len(overlap) / max(1, len(query))})
     ranked.sort(key=lambda row: (-row["overlap"], row["source"]))
     best = ranked[0]
     if best["overlap"] < MIN_OVERLAP:

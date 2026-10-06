@@ -10,7 +10,7 @@ Source: [src/technicaldoc/answer.py](src/technicaldoc/answer.py).
 
 ## 2. How is overlap computed?
 
-`words` extracts lowercase alphanumeric tokens into a set and removes a fixed stop-word set. Overlap is the size of the intersection between query terms and passage terms, so repeated words do not increase it.
+`words` extracts lowercase alphanumeric tokens into a set and removes a fixed stop-word set. Overlap is the size of the intersection between query terms and passage terms, so repeated words do not increase it. Ranked records now include the matched terms and the fraction of distinct query terms covered; coverage is not semantic confidence.
 
 Source: [src/technicaldoc/answer.py](src/technicaldoc/answer.py).
 
@@ -22,7 +22,7 @@ Source: [src/technicaldoc/answer.py](src/technicaldoc/answer.py).
 
 ## 4. How is the optional source filter applied?
 
-An explicit source restricts the corpus to passages with that exact source name. If none remain, `InputError` becomes HTTP 422. This is source selection, not user authorization.
+An explicit source restricts the corpus to passages with that exact source name. If none remain, `InputError` becomes HTTP 422. Source must be a string of at most 200 characters; queries are limited to 2,000 characters. This is source selection, not user authorization.
 
 Source: [src/technicaldoc/answer.py](src/technicaldoc/answer.py).
 
@@ -70,7 +70,7 @@ Source: [src/technicaldoc/ops.py](src/technicaldoc/ops.py).
 
 ## 12. What happens when a production job is approved?
 
-Targets exactly equal to `prod` or `production` create a `pending_approval` job and approval returns HTTP 403. Other target strings are queued. Approval of a lab job changes its status only; it does not execute a workload.
+Targets are trimmed and normalized to lowercase before policy checks. `prod` and `production`, including case/padding variants, create a `pending_approval` job and approval returns HTTP 403. Repeated lab approval is idempotent; approval changes a record only, without executing a workload.
 
 Source: [src/technicaldoc/ops.py](src/technicaldoc/ops.py).
 
